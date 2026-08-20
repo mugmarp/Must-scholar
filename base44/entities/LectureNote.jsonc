@@ -1,0 +1,21 @@
+{
+  "name": "LectureNote",
+  "type": "object",
+  "properties": {
+    "natural_key": {
+      "type": "string",
+      "description": "program_group|course_code|day|start_time"
+    },
+    "content": {
+      "type": "string",
+      "default": ""
+    },
+    "alarm_minutes": {
+      "type": "number",
+      "description": "minutes before class to remind (15/30/60), null = off"
+    }
+  },
+  "required": [
+    "natural_key"
+  ]
+}

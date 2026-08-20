@@ -1,0 +1,51 @@
+{
+  "name": "TimetableEntry",
+  "type": "object",
+  "properties": {
+    "program_group": {
+      "type": "string",
+      "description": "e.g. MBR I"
+    },
+    "day": {
+      "type": "string",
+      "description": "Monday..Sunday"
+    },
+    "time_slot": {
+      "type": "string"
+    },
+    "start_time": {
+      "type": "string"
+    },
+    "end_time": {
+      "type": "string"
+    },
+    "course_code": {
+      "type": "string"
+    },
+    "course_title": {
+      "type": "string"
+    },
+    "session_type": {
+      "type": "string",
+      "description": "THEORY | PRACTICAL | CLINICAL (nullable)"
+    },
+    "lecturer": {
+      "type": "string"
+    },
+    "room": {
+      "type": "string"
+    },
+    "shared_with": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "program_group",
+    "day",
+    "start_time",
+    "course_code"
+  ]
+}
