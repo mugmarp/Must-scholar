@@ -1,0 +1,40 @@
+{
+  "name": "Assignment",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "course_code": {
+      "type": "string"
+    },
+    "due_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reminder_minutes": {
+      "type": "number",
+      "description": "minutes before due to remind; null = off"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high"
+      ],
+      "default": "medium"
+    },
+    "notes": {
+      "type": "string",
+      "default": ""
+    },
+    "completed": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "title"
+  ]
+}

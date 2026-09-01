@@ -1,0 +1,39 @@
+{
+  "name": "CustomEvent",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "day": {
+      "type": "string",
+      "description": "Monday..Sunday"
+    },
+    "start_time": {
+      "type": "string"
+    },
+    "end_time": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string",
+      "default": ""
+    },
+    "repeat_weekly": {
+      "type": "boolean",
+      "default": true
+    },
+    "alarm_minutes": {
+      "type": "number",
+      "description": "minutes before start to remind; null = off"
+    }
+  },
+  "required": [
+    "title",
+    "day",
+    "start_time"
+  ]
+}

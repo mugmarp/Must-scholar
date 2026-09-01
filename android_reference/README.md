@@ -13,18 +13,40 @@ They are NOT part of the Base44 React web app.
 - **Networking:** Retrofit with ETag / If-None-Match for offline-first sync.
 - **UI:** Jetpack Compose + MVVM (StateFlow) with overlap-aware timeline.
 
+## Features (mirrors the Base44 web app)
+- Offline timetable with ETag sync
+- Per-class notes + reminders (minutes-before), persisted by Business Natural Key
+- Custom events (with optional weekly repeat + reminder) shown in the timeline
+- Assignments / deadlines with adjustable reminder time, priority, completion
+- Unified AlarmManager reminders (classes, events, assignments) re-armed on boot
+- Month calendar overview (classes / events / deadlines dots)
+- Notes, Tasks (search + hide-done), Settings screens
+- First-launch onboarding + bottom navigation
+- Schedule conflict detection when saving a custom event
+- Long-press a day to quick-add an event; horizontal swipe between days
+- Today is highlighted in the day selector
+
 ## Package structure
 ```
 com.must.timetable/
   core/
-    alarm/      AlarmScheduler, BootReceiver, ClassAlarmReceiver
-    database/   AppDatabase, TimetableDao, Converters
-    network/    ApiService, SafeApiCall
-  features/timetable/
-    data/       TimetableRepository, ETagStore
-    domain/     TimetableEntry, LectureNote
-    ui/         TimetableScreen, TimetableViewModel, NextUpCard,
-                OverlapTimeline, LectureDetailSheet
+    alarm/      AlarmScheduler, ClassAlarmReceiver, BootReceiver, ReminderScheduler
+    database/   AppDatabase, TimetableDao, CustomEventDao, AssignmentDao, Converters
+    network/    ApiService, SafeApiCall, ApiClient
+    util/       TimeUtil, NotificationPermission
+  features/
+    timetable/
+      data/     TimetableRepository, ETagStore
+      domain/   TimetableEntry, LectureNote, CustomEvent, Assignment
+      ui/       TimetableScreen, TimetableViewModel, NextUpCard,
+                OverlapTimeline, LectureDetailSheet, EventSheet, EventCard
+    tasks/ui/      TasksScreen, TasksViewModel, AssignmentSheet
+    calendar/ui/   CalendarScreen, CalendarViewModel
+    notes/ui/      NotesScreen, NotesViewModel
+    settings/ui/   SettingsScreen
+    onboarding/ui/ WelcomeScreen
+  ui/             MainScaffold (NavHost + NavigationBar)
+  AppGraph        (manual DI: repository + ViewModel factory)
 ```
 
 ## Setup

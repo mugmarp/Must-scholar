@@ -15,5 +15,7 @@ data class LectureNote(
     val naturalKey: String,
     val content: String,
     val updatedAt: Long,
-    val colourTag: String? = null
+    val colourTag: String? = null,
+    /** Minutes before class to remind; null = off. */
+    val alarmMinutes: Int? = null
 )

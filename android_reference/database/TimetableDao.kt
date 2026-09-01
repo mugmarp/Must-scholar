@@ -46,4 +46,16 @@ interface TimetableDao {
 
     @Query("DELETE FROM lecture_notes WHERE naturalKey = :key")
     suspend fun deleteNote(key: String)
+
+    @Query("SELECT * FROM lecture_notes WHERE alarmMinutes IS NOT NULL")
+    suspend fun getNotesWithAlarms(): List<LectureNote>
+
+    @Query("SELECT * FROM timetable_entries WHERE programmeGroup = :programme OR sharedWithRaw LIKE '%' || :programme || '%'")
+    suspend fun getEntriesForProgrammeOnce(programme: String): List<TimetableEntry>
+
+    @Query("SELECT * FROM timetable_entries WHERE programmeGroup LIKE '%' || :programme || '%' OR sharedWithRaw LIKE '%' || :programme || '%'")
+    fun getAllProgrammeGroupsFlow(programme: String): Flow<List<TimetableEntry>>
+
+    @Query("SELECT * FROM lecture_notes ORDER BY updatedAt DESC")
+    fun getAllNotes(): Flow<List<LectureNote>>
 }

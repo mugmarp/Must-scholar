@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { MapPin, User, Clock, Bell } from "lucide-react";
 import { base44 } from "@/api/base44Client";
 import { naturalKey, sessionStyle } from "@/lib/timetableUtils";
+import { requestNotificationPermission } from "@/lib/alarms";
 
 export default function LectureDetailSheet({ entry, onClose }) {
   const { toast } = useToast();
@@ -76,6 +77,7 @@ export default function LectureDetailSheet({ entry, onClose }) {
   const toggleAlarm = async (mins) => {
     const next = alarm === mins ? null : mins;
     setAlarm(next);
+    if (next != null) requestNotificationPermission();
     try {
       if (noteId) {
         await base44.entities.LectureNote.update(noteId, { alarm_minutes: next });

@@ -25,4 +25,10 @@ dependencies {
 
     // WorkManager
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    // Navigation (bottom tabs)
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+
+    // Material icons extended
+    implementation("androidx.compose.material:material-icons-extended")
 }

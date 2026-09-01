@@ -8,35 +8,44 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 
+/**
+ * Generic reminder receiver. Shows the notification, and for weekly-repeating
+ * items re-arms the alarm for the next week.
+ */
 class ClassAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
-        val courseTitle = intent.getStringExtra(AlarmScheduler.EXTRA_COURSE_TITLE) ?: "Class"
-        val room = intent.getStringExtra(AlarmScheduler.EXTRA_ROOM) ?: ""
-        val startTime = intent.getStringExtra(AlarmScheduler.EXTRA_START_TIME) ?: ""
-        showNotification(context, courseTitle, room, startTime)
+        val title = intent.getStringExtra(AlarmScheduler.EXTRA_TITLE) ?: "Reminder"
+        val body = intent.getStringExtra(AlarmScheduler.EXTRA_BODY) ?: ""
+        showNotification(context, title, body)
+
+        if (intent.getBooleanExtra(AlarmScheduler.EXTRA_REPEAT, false)) {
+            val day = intent.getStringExtra(AlarmScheduler.EXTRA_DAY) ?: return
+            val time = intent.getStringExtra(AlarmScheduler.EXTRA_TIME) ?: return
+            val lead = intent.getIntExtra(AlarmScheduler.EXTRA_LEAD, 0)
+            val key = intent.getStringExtra(AlarmScheduler.EXTRA_KEY) ?: return
+            val triggerAt = com.must.timetable.core.util.TimeUtil.nextWeeklyOccurrenceMillis(day, time, lead)
+            AlarmScheduler(context).rearmWeekly(key, title, body, day, time, lead, triggerAt)
+        }
     }
 
-    private fun showNotification(
-        context: Context, title: String, room: String, startTime: String
-    ) {
+    private fun showNotification(context: Context, title: String, body: String) {
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                CHANNEL_ID, "Class Reminders", NotificationManager.IMPORTANCE_HIGH
+            nm.createNotificationChannel(
+                NotificationChannel(CHANNEL_ID, "Reminders", NotificationManager.IMPORTANCE_HIGH)
             )
-            nm.createNotificationChannel(channel)
         }
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val n = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Upcoming: $title")
-            .setContentText("Starts at $startTime in $room")
+            .setContentTitle("⏰ $title")
+            .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
-        nm.notify(System.currentTimeMillis().toInt(), notification)
+        nm.notify(System.currentTimeMillis().toInt(), n)
     }
 
     companion object {
-        const val CHANNEL_ID = "must_class_reminders"
+        const val CHANNEL_ID = "must_reminders"
     }
 }
