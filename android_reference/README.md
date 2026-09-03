@@ -45,7 +45,7 @@ com.must.timetable/
     notes/ui/      NotesScreen, NotesViewModel
     settings/ui/   SettingsScreen
     onboarding/ui/ WelcomeScreen
-  ui/             MainScaffold (NavHost + NavigationBar)
+  ui/             MainScaffold (NavHost + pill bottom bar), Theme (dark mode + 4 accents)
   AppGraph        (manual DI: repository + ViewModel factory)
 ```
 

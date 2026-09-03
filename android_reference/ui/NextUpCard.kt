@@ -1,64 +1,116 @@
 package com.must.timetable.features.timetable.ui
 
+/**
+ * Mirrors src/components/timetable/NextUpCard.jsx
+ * Gradient card (accent -> violet-700), "NEXT UP" pill, countdown,
+ * session label pill, big title, meta rows and a white chevron circle.
+ */
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.must.timetable.features.timetable.domain.TimetableEntry
 
 @Composable
-fun NextUpCard(entries: List<TimetableEntry>) {
-    val nextUp = entries.firstOrNull()
+fun NextUpCard(entry: TimetableEntry, minutesUntil: Int, onClick: () -> Unit) {
+    val accent = MaterialTheme.colorScheme.primary
+    val white90 = Color.White.copy(alpha = 0.9f)
+    val pill = Color.White.copy(alpha = 0.2f)
 
-    if (nextUp == null) {
-        Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
-            Text("No more classes today", modifier = Modifier.padding(24.dp),
-                style = MaterialTheme.typography.titleMedium)
-        }
-        return
-    }
-
-    val sessionColor = sessionTypeColor(nextUp.sessionType)
-    Card(modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)) {
-        Column(modifier = Modifier.padding(20.dp)) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .clip(RoundedCornerShape(24.dp))
+            .background(Brush.linearGradient(listOf(accent, Color(0xFF6D28D9))))
+            .clickable { onClick() }
+    ) {
+        Column(Modifier.padding(20.dp)) {
+            // top row: NEXT UP pill + countdown
             Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
-                Text("NEXT UP", style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer)
-                Surface(shape = RoundedCornerShape(8.dp), color = sessionColor) {
-                    Text(nextUp.sessionType ?: "THEORY",
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        style = MaterialTheme.typography.labelSmall, color = Color.White)
+                Text(
+                    "NEXT UP",
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.5.sp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(pill)
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                )
+                Text(
+                    formatCountdown(minutesUntil),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color.White
+                )
+            }
+            Spacer(Modifier.height(10.dp))
+            // course code + session label pill
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(entry.courseCode, fontSize = 14.sp, fontWeight = FontWeight.SemiBold, color = white90)
+                Text(
+                    sessionStyle(entry).label,
+                    fontSize = 11.sp,
+                    color = Color.White,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(50))
+                        .background(pill)
+                        .padding(horizontal = 8.dp, vertical = 2.dp)
+                )
+            }
+            Spacer(Modifier.height(4.dp))
+            Text(entry.courseTitle, fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            Spacer(Modifier.height(12.dp))
+            // meta: time + room
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                MetaWhite(Icons.Default.Schedule, "${entry.startTime} – ${entry.endTime}")
+                if (entry.room.isNotEmpty()) MetaWhite(Icons.Default.LocationOn, entry.room)
+            }
+            Spacer(Modifier.height(16.dp))
+            // bottom: lecturer + chevron circle
+            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween, Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    if (entry.lecturer.isNotEmpty()) {
+                        Icon(Icons.Default.Person, null, tint = white90, modifier = Modifier.size(16.dp))
+                        Text(entry.lecturer.split(" ").first(), fontSize = 14.sp, color = white90)
+                    }
+                }
+                Surface(shape = CircleShape, color = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(36.dp)) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.ChevronRight, null, tint = accent, modifier = Modifier.size(20.dp))
+                    }
                 }
             }
-            Spacer(Modifier.height(12.dp))
-            Text(nextUp.courseTitle, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
-            Text("${nextUp.courseCode} - ${nextUp.timeSlot}", style = MaterialTheme.typography.bodyMedium)
-            Spacer(Modifier.height(8.dp))
-            Row(Modifier.fillMaxWidth(), Arrangement.SpaceBetween) {
-                Text("Room: ${nextUp.room}", style = MaterialTheme.typography.bodyMedium)
-                if (nextUp.lecturer.isNotEmpty()) {
-                    Text("Lecturer: ${nextUp.lecturer}", style = MaterialTheme.typography.bodyMedium)
-                }
-            }
-            Spacer(Modifier.height(12.dp))
-            Text("Starts in 2h 15m", style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
         }
     }
 }
 
-fun sessionTypeColor(type: String?): Color = when (type?.uppercase()) {
-    "THEORY" -> Color(0xFF3B82F6)
-    "PRACTICAL" -> Color(0xFF22C55E)
-    "CLINICAL", "WARD" -> Color(0xFFF59E0B)
-    else -> Color(0xFF6B7280)
+@Composable
+private fun MetaWhite(icon: ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Icon(icon, null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(16.dp))
+        Text(text, fontSize = 14.sp, color = Color.White.copy(alpha = 0.9f))
+    }
 }
