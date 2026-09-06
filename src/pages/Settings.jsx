@@ -12,6 +12,7 @@ import {
   Database,
   ChevronRight,
   Bell,
+  GraduationCap,
 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -20,11 +21,15 @@ import { useToast } from "@/components/ui/use-toast";
 import { base44 } from "@/api/base44Client";
 import { useTheme, ACCENTS } from "@/lib/theme";
 import { requestNotificationPermission, notificationsSupported } from "@/lib/alarms";
+import { loadSelection, findFaculty, findProgramme } from "@/lib/programmes";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { dark, setDark, accent, setAccent } = useTheme();
+  const selection = loadSelection();
+  const selectedProgramme = selection ? findProgramme(selection.code) : null;
+  const selectedFaculty = selection ? findFaculty(selection.facultyId) : null;
   const [syncing, setSyncing] = useState(false);
   const [lastSynced, setLastSynced] = useState(
     () => localStorage.getItem("must_last_synced") || ""
@@ -58,7 +63,9 @@ export default function Settings() {
   };
 
   const clearCache = () => {
-    localStorage.removeItem("must_programme");
+    ["must_programme", "must_prog_code", "must_faculty"].forEach((k) =>
+      localStorage.removeItem(k)
+    );
     toast({ title: "Cache cleared" });
   };
 
@@ -91,6 +98,25 @@ export default function Settings() {
         <button className="p-1 -mr-1">
           <HelpCircle className="w-6 h-6 text-muted-foreground" />
         </button>
+      </div>
+
+      {/* Academic Profile */}
+      <div className="space-y-2">
+        <p className="text-xs font-bold tracking-wider text-primary">ACADEMIC PROFILE</p>
+        <Card className="p-4">
+          <Row
+            icon={GraduationCap}
+            title={selectedProgramme ? selectedProgramme.name : "Choose faculty & programme"}
+            subtitle={
+              selection
+                ? `${selection.group}${selectedFaculty ? ` • ${selectedFaculty.name}` : ""}`
+                : "Required to show your timetable"
+            }
+            onClick={() => navigate("/program-setup?from=settings")}
+          >
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+          </Row>
+        </Card>
       </div>
 
       {/* Notifications */}

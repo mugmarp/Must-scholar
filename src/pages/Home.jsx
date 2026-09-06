@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { base44 } from "@/api/base44Client";
-import ProgrammeSelector from "@/components/timetable/ProgrammeSelector";
 import NextUpCard from "@/components/timetable/NextUpCard";
 import DaySelector from "@/components/timetable/DaySelector";
 import LectureCard from "@/components/timetable/LectureCard";
@@ -8,6 +7,7 @@ import EventCard from "@/components/timetable/EventCard";
 import LectureDetailSheet from "@/components/timetable/LectureDetailSheet";
 import EventSheet from "@/components/timetable/EventSheet";
 import { DAYS, findNextUp, todayName, dedupeShared } from "@/lib/timetableUtils";
+import { loadSelection, entryMatchesGroup, parseGroup } from "@/lib/programmes";
 import { useToast } from "@/components/ui/use-toast";
 import { Plus } from "lucide-react";
 
@@ -15,19 +15,13 @@ export default function Home() {
   const [entries, setEntries] = useState([]);
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [programme, setProgramme] = useState(
-    () => localStorage.getItem("must_programme") || "MBR I"
-  );
+  const [programme] = useState(() => loadSelection()?.group || "");
   const [selectedDay, setSelectedDay] = useState(() => todayName());
   const [selectedEntry, setSelectedEntry] = useState(null);
   const [editingEvent, setEditingEvent] = useState(null);
   const [now, setNow] = useState(new Date());
   const [syncing, setSyncing] = useState(false);
   const { toast } = useToast();
-
-  useEffect(() => {
-    localStorage.setItem("must_programme", programme);
-  }, [programme]);
 
   const loadAll = async () => {
     const [list, evs] = await Promise.all([
@@ -66,20 +60,10 @@ export default function Home() {
     return () => clearInterval(t);
   }, []);
 
-  const programmes = useMemo(() => {
-    const set = new Set();
-    entries.forEach((e) => set.add(e.program_group));
-    return Array.from(set).sort();
-  }, [entries]);
-
-  const myEntries = useMemo(() => {
-    const mine = entries.filter(
-      (e) =>
-        e.program_group === programme ||
-        (e.shared_with || []).includes(programme)
-    );
-    return dedupeShared(mine);
-  }, [entries, programme]);
+  const myEntries = useMemo(
+    () => dedupeShared(entries.filter((e) => entryMatchesGroup(e, programme))),
+    [entries, programme]
+  );
 
   const dayItems = useMemo(() => {
     const lectures = myEntries
@@ -148,7 +132,9 @@ export default function Home() {
           </div>
           <div>
             <p className="text-sm font-semibold">{greeting}</p>
-            <p className="text-xs text-muted-foreground">{programme}</p>
+            <p className="text-xs text-muted-foreground">
+              {parseGroup(programme)?.group || programme}
+            </p>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -170,8 +156,6 @@ export default function Home() {
       </div>
 
       <h1 className="text-2xl font-bold">Your Schedule Today</h1>
-
-      <ProgrammeSelector programmes={programmes} value={programme} onChange={setProgramme} />
 
       {nextUp && nextUp.entry && (
         <NextUpCard nextUp={nextUp} onSelect={setSelectedEntry} />

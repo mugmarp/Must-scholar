@@ -11,6 +11,7 @@ import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
 import Home from '@/pages/Home';
 import Welcome from '@/pages/Welcome';
+import ProgramSetup from '@/pages/ProgramSetup';
 import Notes from '@/pages/Notes';
 import Settings from '@/pages/Settings';
 import Tasks from '@/pages/Tasks';
@@ -34,6 +35,7 @@ const AuthenticatedApp = () => {
   return (
     <Routes>
       <Route path="/welcome" element={<Welcome />} />
+      <Route path="/program-setup" element={<ProgramSetup />} />
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />
         <Route path="/notes" element={<Notes />} />

@@ -9,6 +9,7 @@ import LectureDetailSheet from "@/components/timetable/LectureDetailSheet";
 import EventSheet from "@/components/timetable/EventSheet";
 import AssignmentSheet from "@/components/tasks/AssignmentSheet";
 import { DAYS, todayName, dedupeShared } from "@/lib/timetableUtils";
+import { loadSelection, entryMatchesGroup } from "@/lib/programmes";
 
 const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
 
@@ -57,14 +58,9 @@ export default function Calendar() {
     })();
   }, []);
 
-  const programme = localStorage.getItem("must_programme") || "MBR I";
+  const programme = loadSelection()?.group || "";
   const myEntries = useMemo(
-    () =>
-      dedupeShared(
-        entries.filter(
-          (e) => e.program_group === programme || (e.shared_with || []).includes(programme)
-        )
-      ),
+    () => dedupeShared(entries.filter((e) => entryMatchesGroup(e, programme))),
     [entries, programme]
   );
 

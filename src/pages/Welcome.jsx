@@ -7,7 +7,7 @@ export default function Welcome() {
   const navigate = useNavigate();
   const start = () => {
     localStorage.setItem("must_welcome_done", "1");
-    navigate("/");
+    navigate("/program-setup");
   };
 
   return (
